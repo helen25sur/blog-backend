@@ -5,10 +5,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let posts = [
-  { id: 1, title: "Мій перший пост", content: "Привіт, блог!" }
-];
-
 const postsRouter = require('./routes/posts');
 
 app.use(postsRouter);
