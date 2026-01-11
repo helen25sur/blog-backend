@@ -20,10 +20,11 @@ exports.getPosts = (req, res, next) => {
   return posts;
 };
 
-exports.postCart = (req, res, next) => {
+exports.postPost = (req, res, next) => {
   const posts = getPostsFromFile((posts) => {
-    const { title, content } = req.body;
-    const newPost = { id: v4(), title, content };
+    const { title, content, imageURL } = req.body;
+    console.log(req.body);
+    const newPost = { id: v4(), title, content, imageURL };
     posts.push(newPost);
     fs.writeFile(p, JSON.stringify(posts), (err) => {
       if (err) {
