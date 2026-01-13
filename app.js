@@ -7,6 +7,7 @@ app.use(express.json());
 
 const postsRouter = require('./routes/posts');
 
+app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use(postsRouter);
 
 

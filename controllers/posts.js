@@ -11,17 +11,17 @@ const getPostsFromFile = (cb) => {
     }
     cb(JSON.parse(data));
   });
-}
-
-exports.getPosts = (req, res, next) => {
-  const posts = getPostsFromFile((posts) => {
-    res.json(posts);
-  });
-  return posts;
 };
 
+exports.getAllPosts = (req, res, next) => {
+  getPostsFromFile((posts) => {
+    res.json(posts);
+  });
+};
+
+
 exports.postPost = (req, res, next) => {
-  const posts = getPostsFromFile((posts) => {
+  getPostsFromFile((posts) => {
     const { title, content, imageURL } = req.body;
     console.log(req.body);
     const newPost = { id: v4(), title, content, imageURL };
@@ -33,7 +33,6 @@ exports.postPost = (req, res, next) => {
       res.status(201).json(newPost);
     });
   });
-  return posts;
 };
 
 exports.getPostById = (req, res, next) => {
