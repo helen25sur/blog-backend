@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-const mongoConnect = require('./db/database');
+const mongoConnect = require('./db/database').mongoConnect;
 
 const app = express();
 app.use(cors());
@@ -12,7 +12,6 @@ const postsRouter = require('./routes/posts');
 app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use(postsRouter);
 
-mongoConnect((client) => {
-  console.log(client);
+mongoConnect(() => {
   app.listen(3000, () => console.log("Server running on port 3000"));
 });
