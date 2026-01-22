@@ -1,11 +1,15 @@
 const Post = require('../models/post');
 
 
-// exports.getAllPosts = (req, res, next) => {
-//   getPostsFromFile((posts) => {
-//     res.json(posts);
-//   });
-// };
+exports.getAllPosts = (req, res, next) => {
+  Post.getAll()
+    .then(posts => {
+      res.json(posts);
+    })
+    .catch(err => {
+      console.error(err);
+    })
+};
 
 
 exports.postPost = (req, res, next) => {

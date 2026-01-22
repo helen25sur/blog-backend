@@ -17,6 +17,18 @@ class Post {
         console.error(err);
       })
   }
+
+  static getAll() {
+    const db = getDB();
+    return db.collection('posts').find().toArray()
+      .then(posts => {
+        console.log(posts);
+        return posts;
+      })
+      .catch(err => {
+        console.error(err); 
+      })
+  }
 }
 
 module.exports = Post;
