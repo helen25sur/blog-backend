@@ -38,18 +38,21 @@ exports.postPost = (req, res, next) => {
   // });
 };
 
-// exports.getPostById = (req, res, next) => {
-//   const postId = req.params.id;
-
-//   getPostsFromFile((posts) => {
-//     const post = posts.find(p => p.id === postId);
-//     if (post) {
-//       res.json(post);
-//     } else {
-//       res.status(404).json({ message: "Post not found" });
-//     }
-//   });
-// };
+exports.getPostById = (req, res, next) => {
+  const postId = req.params.id;
+  Post.findById(postId)
+    .then(post => {
+      if (post) {
+        res.json(post);
+      } else {
+        res.status(404).json({ message: "Post not found" });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+    })
+  
+};
 
 // exports.putEditPost = (req, res, next) => {
 //   const postId = req.params.id;
