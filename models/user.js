@@ -13,7 +13,7 @@ class User {
     const db = getDB();
     return db.collection('users').insertOne(this)
       .then(result => {
-        console.log('16', result);
+        console.log('16 User', result);
       })
       .catch(err => {
         console.error(err);

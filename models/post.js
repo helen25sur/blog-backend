@@ -3,16 +3,19 @@ const mongodb = require('mongodb');
 const getDB = require('../db/database').getDB;
 
 class Post {
-  constructor(title, content, imageURL, id) {
+  constructor(title, content, imageURL, id, userId, userName) {
     this.title = title;
     this.content = content;
     this.imageURL = imageURL;
     this._id = id ? new mongodb.ObjectId(id) : null;
+    this.userId = userId;
+    this.userName = userName;
   }
 
   save() {
     const db = getDB();
     let dbOp;
+    console.log('17 Post', this._id);
     if(this._id) {
       // update post
       dbOp = db.collection('posts').updateOne({_id: this._id}, {$set: this})
@@ -21,7 +24,7 @@ class Post {
     }
     return dbOp
       .then(result => {
-        console.log('14',result);
+        console.log('26 Post', result);
       })
       .catch(err => {
         console.error(err);

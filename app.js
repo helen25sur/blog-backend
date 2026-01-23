@@ -20,7 +20,6 @@ app.use((req, res, next) => {
     .catch(err => {
       console.error(err);
     })
-  next();
 })
 
 app.use('/favicon.ico', express.static('public/favicon.ico'));

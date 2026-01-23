@@ -13,7 +13,8 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.postPost = (req, res, next) => {
   const { title, content, imageURL } = req.body;
-  const newPost = new Post(title, content, imageURL);
+  console.log('16', req.user._id);
+  const newPost = new Post(title, content, imageURL, null, req.user._id, req.user.userName);
   newPost.save()
     .then(() => {
       // console.log('Created product!');
