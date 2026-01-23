@@ -15,7 +15,7 @@ class Post {
     let dbOp;
     if(this._id) {
       // update post
-      dbOp = db.collection('posts').updateOne({_id: new mongodb.ObjectId(this._id)}, {$set: this})
+      dbOp = db.collection('posts').updateOne({_id: this._id}, {$set: this})
     } else {
       dbOp = db.collection('posts').insertOne(this);
     }
