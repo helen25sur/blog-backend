@@ -7,7 +7,7 @@ class Post {
     this.title = title;
     this.content = content;
     this.imageURL = imageURL;
-    this._id = id;
+    this._id = id ? new mongodb.ObjectId(id) : null;
   }
 
   save() {
@@ -47,6 +47,18 @@ class Post {
       .then(post => {
         console.log(post);
         return post;
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  }
+
+  static deleteById(postId) {
+    const db = getDB();
+    return db.collection('posts').deleteOne({_id: new mongodb.ObjectId(postId)})
+      .then(result => {
+        console.log('Deleted');
+        console.log(result);
       })
       .catch(err => {
         console.error(err);

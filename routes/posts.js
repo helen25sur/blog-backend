@@ -9,6 +9,6 @@ router.get('/', postsControllers.getAllPosts);
 
 router.post('/', postsControllers.postPost);
 router.put('/post-edit/:id', postsControllers.putEditPost);
-// router.delete('/post-delete/:id', postsControllers.deletePost);
+router.delete('/post-delete/:id', postsControllers.deletePost);
 
 module.exports = router;
