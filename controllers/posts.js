@@ -1,7 +1,7 @@
 const Post = require('../models/post');
 
 exports.getAllPosts = (req, res, next) => {
-  Post.getAll()
+  Post.find()
     .then(posts => {
       res.json(posts);
     })
@@ -13,8 +13,8 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.postPost = (req, res, next) => {
   const { title, content, imageURL } = req.body;
-  console.log('16', req.user._id);
-  const newPost = new Post(title, content, imageURL, null, req.user._id, req.user.userName);
+  // console.log('16', req.user._id);
+  const newPost = new Post({ title: title, content: content, imageURL: imageURL });
   newPost.save()
     .then(() => {
       // console.log('Created product!');
@@ -23,7 +23,7 @@ exports.postPost = (req, res, next) => {
     })
     .catch(err => {
       console.error(err);
-      res.status(500).json({ message: err.message});
+      res.status(500).json({ message: err.message });
     });
 };
 
@@ -40,22 +40,29 @@ exports.getPostById = (req, res, next) => {
     .catch(err => {
       console.error(err);
     })
-  
+
 };
 
 exports.putEditPost = (req, res, next) => {
   const postId = req.params.id;
   const { title, content, imageURL } = req.body;
   console.log("Editing:", postId, req.body);
-  const updatedPost = new Post(title, content, imageURL, postId);
-  updatedPost.save()
-    .then(() => {
-      if(updatedPost) {
-        res.status(200).json(updatedPost);
-        console.log('68', 'Updating post');
+  // const updatedPost = new Post(title, content, imageURL, postId);
+  Post.findById(postId)
+    .then(product => {
+      product.title = title;
+      product.content = content;
+      product.imageURL = imageURL;
+      return product.save()
+    })
+    .then((product) => {
+      console.log('59', product);
+      if (product) {
+        res.status(200).json(product);
+        console.log('62', 'Updating post');
       } else {
         res.status(404).json({ message: "Post not found" });
-      }      
+      }
     })
     .catch(err => {
       console.error(err);
@@ -65,7 +72,7 @@ exports.putEditPost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.id;
-  Post.deleteById(postId)
+  Post.findByIdAndDelete(postId)
     .then(() => {
       console.log(postId);
       console.log('Destroyed post');
@@ -76,5 +83,5 @@ exports.deletePost = (req, res, next) => {
       return res.status(500).json({ message: err.message });
     })
 
-    // return res.status(404).json({ message: "Post not found" });
+  // return res.status(404).json({ message: "Post not found" });
 }
