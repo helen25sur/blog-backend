@@ -2,7 +2,9 @@ const Post = require('../models/post');
 
 exports.getAllPosts = (req, res, next) => {
   Post.find()
+    .populate('userId')
     .then(posts => {
+      console.log(posts);
       res.json(posts);
     })
     .catch(err => {
@@ -14,7 +16,7 @@ exports.getAllPosts = (req, res, next) => {
 exports.postPost = (req, res, next) => {
   const { title, content, imageURL } = req.body;
   // console.log('16', req.user._id);
-  const newPost = new Post({ title: title, content: content, imageURL: imageURL });
+  const newPost = new Post({ title: title, content: content, imageURL: imageURL, userId: req.user });
   newPost.save()
     .then(() => {
       // console.log('Created product!');
