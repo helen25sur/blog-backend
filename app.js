@@ -12,21 +12,33 @@ const User = require('./models/user');
 
 const app = express();
 
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
+
 const store = new MongoDBStore({
   uri: `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_USER_PASSWORD}@cluster0.uwu6dns.mongodb.net/blog`,
   collection: 'sessions'
 });
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 const postsRouter = require('./routes/posts');
+const authRouter = require('./routes/auth');
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: store
+  store: store,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    // Якщо деплоїте на Render (HTTPS), додайте ці параметри:
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  }
 }));
 
 app.use((req, res, next) => {
@@ -43,6 +55,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/favicon.ico', express.static('public/favicon.ico'));
+app.use(authRouter);
 app.use(postsRouter);
 
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_USER_PASSWORD}@cluster0.uwu6dns.mongodb.net/blog?retryWrites=true&w=majority`)
