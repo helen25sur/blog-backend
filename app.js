@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 // const mongoConnect = require('./db/database').mongoConnect;
 
@@ -13,6 +14,12 @@ app.use(cors());
 app.use(express.json());
 
 const postsRouter = require('./routes/posts');
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
 
 app.use((req, res, next) => {
   User.findById('6973e9d3dbfec7a487e5f469')
