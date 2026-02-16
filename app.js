@@ -4,12 +4,19 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 // const mongoConnect = require('./db/database').mongoConnect;
 
 const User = require('./models/user');
 
 const app = express();
+
+const store = new MongoDBStore({
+  uri: `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_USER_PASSWORD}@cluster0.uwu6dns.mongodb.net/blog`,
+  collection: 'sessions'
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -18,7 +25,8 @@ const postsRouter = require('./routes/posts');
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: store
 }));
 
 app.use((req, res, next) => {
