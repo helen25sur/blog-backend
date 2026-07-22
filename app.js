@@ -17,8 +17,10 @@ app.use(cors({
   credentials: true
 }));
 
+const MONGODB_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_USER_PASSWORD}@cluster0.uwu6dns.mongodb.net/blog`
+
 const store = new MongoDBStore({
-  uri: `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_USER_PASSWORD}@cluster0.uwu6dns.mongodb.net/blog`,
+  uri: MONGODB_URI,
   collection: 'sessions'
 });
 
@@ -41,24 +43,11 @@ app.use(session({
   }
 }));
 
-app.use((req, res, next) => {
-  User.findById('6973e9d3dbfec7a487e5f469')
-    .then(user => {
-      if (user) {
-        req.user = user;
-      }
-      next();
-    })
-    .catch(err => {
-      console.error(err);
-    })
-})
-
 app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use(authRouter);
 app.use(postsRouter);
 
-mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_USER_PASSWORD}@cluster0.uwu6dns.mongodb.net/blog?retryWrites=true&w=majority`)
+mongoose.connect(MONGODB_URI + "?retryWrites=true&w=majority")
   .then(result => {
     User.findOne()
       .then(user => {
