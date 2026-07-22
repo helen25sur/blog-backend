@@ -1,5 +1,12 @@
 const User = require('../models/user');
 
+exports.getStatus = (req, res) => {
+  res.json({
+    isAuthenticated: !!req.session.isLoggedIn,
+    user: req.session.user || null
+  });
+};
+
 exports.getLogin = (req, res, next) => {
   res.json({ message: "Login route" });
 };
