@@ -43,6 +43,22 @@ app.use(session({
   }
 }));
 
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next(); // гість — просто йдемо далі без req.user
+  }
+
+  User.findById(req.session.user._id)
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => {
+      console.error(err);
+      next(err);
+    });
+});
+
 app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use(authRouter);
 app.use(postsRouter);

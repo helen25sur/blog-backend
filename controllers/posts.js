@@ -4,7 +4,7 @@ exports.getAllPosts = (req, res, next) => {
   Post.find()
     .populate('userId')
     .then(posts => {
-      console.log(posts);
+      // console.log(posts);
       res.json(posts);
     })
     .catch(err => {
@@ -15,12 +15,11 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.postPost = (req, res, next) => {
   const { title, content, imageURL } = req.body;
-  // console.log('16', req.user._id);
-  const newPost = new Post({ title: title, content: content, imageURL: imageURL, userId: req.user });
+  console.log('18', req.user);
+  console.log('SESSION в postPost:', req.session);
+  const newPost = new Post({ title: title, content: content, imageURL: imageURL, userId: req.user._id });
   newPost.save()
     .then(() => {
-      // console.log('Created product!');
-      // res.redirect('/all');
       res.status(201).json(newPost);
     })
     .catch(err => {
