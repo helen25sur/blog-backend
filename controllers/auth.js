@@ -1,15 +1,15 @@
 const User = require('../models/user');
 
 exports.getStatus = (req, res) => {
-  console.log(req.session);
+  console.log(req.user);
   const sessionUser = req.session.user;
 
-  const user = sessionUser
+  const user = req.user
     ? {
-      _id: sessionUser._id.toString(),
-      userName: sessionUser.userName,
-      email: sessionUser.email,
-      avatarUrl: sessionUser.avatarUrl
+      _id: req.user._id.toString(),
+      userName: req.user.userName,
+      email: req.user.email,
+      avatarUrl: req.user.avatarUrl
     }
     : null;
 
@@ -60,3 +60,30 @@ exports.postLogout = (req, res, next) => {
     res.status(200).json({ message: "Logout successful" });
   });
 };
+
+exports.getSignup = (req, res, next) => {
+  res.json({ message: "Signup route" });
+}
+
+exports.postSignup = (req, res, next) => {
+  const { username, email, password } = req.body;
+  User.create({
+    userName: username,
+    email: email,
+    avatarUrl: 'https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale',
+  })
+    .then(user => {
+      req.session.isLoggedIn = true;
+      req.session.user = {
+        _id: user._id.toString(),
+        userName: user.userName,
+        email: user.email,
+        avatarUrl: user.avatarUrl
+      };
+      res.status(201).json({ message: "Signup successful", username, email });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    });
+}
