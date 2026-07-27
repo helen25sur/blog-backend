@@ -65,18 +65,6 @@ app.use(postsRouter);
 
 mongoose.connect(MONGODB_URI + "?retryWrites=true&w=majority")
   .then(result => {
-    User.findOne()
-      .then(user => {
-        if (!user) {
-          const newUser = new User({
-            userName: 'Lena',
-            email: 'test@gmail.com',
-            avatarUrl: 'https://i.ibb.co/Q3fRhbDS/photo-2022-04-04-14-02-12.jpg'
-          })
-          newUser.save();
-        }
-      })
-
     console.log("Connected to DB:", mongoose.connection.name);
     app.listen(3000, () => console.log("Server running on port 3000"));
   })
