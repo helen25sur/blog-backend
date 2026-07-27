@@ -44,6 +44,10 @@ exports.getPostById = (req, res, next) => {
 
 };
 
+exports.getAddPost = (req, res, next) => {
+  res.json({ message: "Add Post Page" });
+}
+
 exports.putEditPost = (req, res, next) => {
   const postId = req.params.id;
   const { title, content, imageURL } = req.body;

@@ -9,6 +9,7 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 // const mongoConnect = require('./db/database').mongoConnect;
 
 const User = require('./models/user');
+const postsControllers = require('./controllers/posts');
 
 const app = express();
 
@@ -61,7 +62,11 @@ app.use((req, res, next) => {
 
 app.use('/favicon.ico', express.static('public/favicon.ico'));
 app.use(authRouter);
-app.use(postsRouter);
+app.use('/posts', postsRouter);
+app.use('/', postsControllers.getAllPosts); // Додано маршрут для отримання всіх постів на кореневому шляху
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Page not found" });
+});
 
 mongoose.connect(MONGODB_URI + "?retryWrites=true&w=majority")
   .then(result => {
