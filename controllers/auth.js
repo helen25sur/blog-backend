@@ -26,24 +26,29 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  User.findById('6973e9d3dbfec7a487e5f469')
+  User.findOne({ email: email })
     .then(userFound => {
       if (!userFound) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: 'User with this email not found' });
+      } else {
+        bcrypt.compare(password, userFound.password)
+          .then(isMatch => {
+            if (!isMatch) {
+              return res.status(401).json({ message: 'Invalid password' });
+            } else {
+              req.session.isLoggedIn = true;
+              req.session.user = {
+                _id: userFound._id.toString(),
+                userName: userFound.userName,
+                email: userFound.email,
+                avatarUrl: userFound.avatarUrl
+              };
+              res.json({ message: "Login successful", email });
+            }
+          });
       }
-
-      req.session.isLoggedIn = true;
-      req.session.user = {
-        _id: userFound._id.toString(),
-        userName: userFound.userName,
-        email: userFound.email,
-        avatarUrl: userFound.avatarUrl
-      };
-      // Here you would typically check the username and password against your database
-      // For demonstration, we'll just return a success message
-      res.json({ message: "Login successful", username });
     })
     .catch(err => {
       console.error(err);
