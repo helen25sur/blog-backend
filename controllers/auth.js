@@ -66,11 +66,26 @@ exports.getSignup = (req, res, next) => {
 }
 
 exports.postSignup = (req, res, next) => {
-  const { username, email, password } = req.body;
-  User.create({
+  const { username, email, password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+  User.findOne({ email: email })
+    .then(userFound => {
+      if (userFound) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    });
+
+  const newUser = new User({
     userName: username,
     email: email,
     avatarUrl: 'https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale',
+    password: password
   })
     .then(user => {
       req.session.isLoggedIn = true;
