@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/user');
 
 exports.getStatus = (req, res) => {
@@ -81,12 +83,16 @@ exports.postSignup = (req, res, next) => {
       res.status(500).json({ message: err.message });
     });
 
-  const newUser = new User({
-    userName: username,
-    email: email,
-    avatarUrl: 'https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale',
-    password: password
-  })
+  bcrypt.hash(password, 12)
+    .then(hashedPassword => {
+      const newUser = new User({
+        userName: username,
+        email: email,
+        avatarUrl: 'https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale',
+        password: hashedPassword
+      });
+      return newUser.save();
+    })
     .then(user => {
       req.session.isLoggedIn = true;
       req.session.user = {
@@ -101,4 +107,4 @@ exports.postSignup = (req, res, next) => {
       console.error(err);
       res.status(500).json({ message: err.message });
     });
-}
+};
