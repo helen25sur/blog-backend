@@ -113,3 +113,29 @@ exports.postSignup = (req, res, next) => {
       res.status(500).json({ message: err.message });
     });
 };
+
+exports.getProfile = (req, res, next) => {
+  console.log("Fetching profile for user ID:", req.user._id);
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  User.findById(req.user._id)
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        _id: user._id.toString(),
+        userName: user.userName,
+        email: user.email,
+        avatarUrl: user.avatarUrl
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    });
+};
+
+exports.putProfile = (req, res, next) => {
+};
