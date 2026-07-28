@@ -138,4 +138,23 @@ exports.getProfile = (req, res, next) => {
 };
 
 exports.putProfile = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  User.findByIdAndUpdate(req.user._id, req.body, { new: true })
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({
+        _id: user._id.toString(),
+        userName: user.userName,
+        email: user.email,
+        avatarUrl: user.avatarUrl
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    });
 };
