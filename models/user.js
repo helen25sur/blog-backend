@@ -5,19 +5,25 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   userName: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
+    lowercase: true
   },
   avatarUrl: {
     type: String,
-    required: true
+    required: true,
+    default: 'https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale'
   },
   bio: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: 500,
+    trim: true
   },
   password: {
     type: String,
