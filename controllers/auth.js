@@ -141,7 +141,15 @@ exports.putProfile = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    {
+      userName: req.body.userName,
+      avatarUrl: req.body.avatarUrl,
+      bio: req.body.bio
+    },
+    { new: true, runValidators: true }
+  )
     .then(user => {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -150,8 +158,10 @@ exports.putProfile = (req, res, next) => {
         _id: user._id.toString(),
         userName: user.userName,
         email: user.email,
-        avatarUrl: user.avatarUrl
+        avatarUrl: user.avatarUrl,
+        bio: user.bio,
       });
+      console.log("Profile updated for user ID:", user._id, "New data:", req.body);
     })
     .catch(err => {
       console.error(err);
