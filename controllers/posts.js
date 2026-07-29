@@ -19,8 +19,11 @@ exports.postPost = (req, res, next) => {
   console.log('SESSION в postPost:', req.session);
   const newPost = new Post({ title: title, content: content, imageURL: imageURL, userId: req.user._id });
   newPost.save()
-    .then(() => {
-      res.status(201).json(newPost);
+    .then(post => {
+      return Post.findById(post._id).populate('userId');
+    })
+    .then(populatedPost => {
+      res.status(201).json(populatedPost);
     })
     .catch(err => {
       console.error(err);

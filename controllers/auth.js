@@ -128,7 +128,8 @@ exports.getProfile = (req, res, next) => {
         _id: user._id.toString(),
         userName: user.userName,
         email: user.email,
-        avatarUrl: user.avatarUrl
+        avatarUrl: user.avatarUrl,
+        bio: user.bio,
       });
     })
     .catch(err => {
