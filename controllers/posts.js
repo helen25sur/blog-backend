@@ -3,13 +3,11 @@ const Post = require('../models/post');
 exports.getAllPosts = (req, res, next) => {
   Post.find()
     .populate('userId')
-    .then(posts => {
-      // console.log(posts);
-      res.json(posts);
-    })
+    .then(posts => res.json(posts))
     .catch(err => {
       console.error(err);
-    })
+      res.status(500).json({ message: err.message });
+    });
 };
 
 
@@ -93,3 +91,34 @@ exports.deletePost = (req, res, next) => {
 
   // return res.status(404).json({ message: "Post not found" });
 }
+
+exports.migrateCreatedAt = async (req, res) => {
+  console.log('Migration here');
+
+  try {
+    const posts = await Post.find();
+
+    for (const post of posts) {
+      if (!post.createdAt) {
+        await Post.collection.updateOne(
+          { _id: post._id },
+          {
+            $set: {
+              createdAt: post._id.getTimestamp(),
+              updatedAt: post._id.getTimestamp()
+            }
+          }
+        );
+
+        console.log('Updated:', post._id);
+        const check = await Post.collection.findOne({ _id: post._id });
+        console.log('CHECK:', check.createdAt);
+      }
+    }
+
+    res.json({ message: 'Migration completed' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};

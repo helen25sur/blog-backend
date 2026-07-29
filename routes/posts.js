@@ -9,8 +9,11 @@ router.get('/:id', postsControllers.getPostById);
 router.get('/add-post', isAuth, postsControllers.getAddPost);
 // router.get('/', postsControllers.getAllPosts);
 
+router.post('/migrate-created-at', postsControllers.migrateCreatedAt);
+
 router.post('/', isAuth, postsControllers.postPost);
 router.put('/post-edit/:id', isAuth, postsControllers.putEditPost);
 router.delete('/post-delete/:id', isAuth, postsControllers.deletePost);
+
 
 module.exports = router;

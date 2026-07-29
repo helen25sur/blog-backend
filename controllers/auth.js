@@ -130,6 +130,7 @@ exports.getProfile = (req, res, next) => {
         email: user.email,
         avatarUrl: user.avatarUrl,
         bio: user.bio,
+        createdAt: user.createdAt || user._id.getTimestamp()
       });
     })
     .catch(err => {
