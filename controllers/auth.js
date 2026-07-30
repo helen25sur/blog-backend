@@ -3,24 +3,11 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 exports.getStatus = (req, res) => {
-  // console.log(req.user);
-  const sessionUser = req.session.user;
-
-  const user = req.user
-    ? {
-      _id: req.user._id.toString(),
-      userName: req.user.userName,
-      email: req.user.email,
-      avatarUrl: req.user.avatarUrl,
-      bio: req.user.bio
-    }
-    : null;
-
   res.json({
-    isAuthenticated: !!req.session.isLoggedIn,
-    user
+    isAuthenticated: !!req.session.user
   });
 };
+// TODO: think about cutting this middleware
 
 exports.getLogin = (req, res, next) => {
   res.json({ message: "Login route" });
@@ -46,7 +33,7 @@ exports.postLogin = (req, res, next) => {
                 email: userFound.email,
                 avatarUrl: userFound.avatarUrl
               };
-              res.json({ message: "Login successful", email });
+              res.json({ message: "Login successful", userFound });
             }
           });
       }
@@ -116,10 +103,10 @@ exports.postSignup = (req, res, next) => {
 };
 
 exports.getProfile = (req, res, next) => {
-  console.log("Fetching profile for user ID:", req.user._id);
   if (!req.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
+  console.log("Fetching profile for user ID:", req.user._id);
   User.findById(req.user._id)
     .then(user => {
       if (!user) {

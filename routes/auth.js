@@ -4,7 +4,7 @@ const isAuth = require('../middleware/is-auth');
 
 const authControllers = require('../controllers/auth');
 
-router.get('/status', isAuth, authControllers.getStatus);
+router.get('/status', authControllers.getStatus);
 
 router.get('/login', authControllers.getLogin);
 
