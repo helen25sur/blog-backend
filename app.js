@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const { csrfSync } = require("csrf-sync");
 
 // const mongoConnect = require('./db/database').mongoConnect;
 
@@ -44,6 +45,10 @@ app.use(session({
   }
 }));
 
+const { csrfSynchronisedProtection, generateToken } = csrfSync();
+
+app.use(csrfSynchronisedProtection);
+
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next(); // гість — просто йдемо далі без req.user
@@ -61,6 +66,11 @@ app.use((req, res, next) => {
 });
 
 app.use('/favicon.ico', express.static('public/favicon.ico'));
+app.get("/csrf-token", (req, res) => {
+  res.json({
+    csrfToken: generateToken(req)
+  });
+});
 app.use(authRouter);
 app.use('/posts', postsRouter);
 app.use('/', postsControllers.getAllPosts); // Додано маршрут для отримання всіх постів на кореневому шляху

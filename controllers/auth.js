@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 exports.getStatus = (req, res) => {
-  console.log(req.user);
+  // console.log(req.user);
   const sessionUser = req.session.user;
 
   const user = req.user
@@ -11,7 +11,8 @@ exports.getStatus = (req, res) => {
       _id: req.user._id.toString(),
       userName: req.user.userName,
       email: req.user.email,
-      avatarUrl: req.user.avatarUrl
+      avatarUrl: req.user.avatarUrl,
+      bio: req.user.bio
     }
     : null;
 
