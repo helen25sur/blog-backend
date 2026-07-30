@@ -47,8 +47,6 @@ app.use(session({
 
 const { csrfSynchronisedProtection, generateToken } = csrfSync();
 
-app.use(csrfSynchronisedProtection);
-
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next(); // гість — просто йдемо далі без req.user
@@ -71,6 +69,7 @@ app.get("/csrf-token", (req, res) => {
     csrfToken: generateToken(req)
   });
 });
+app.use(csrfSynchronisedProtection);
 app.use(authRouter);
 app.use('/posts', postsRouter);
 app.use('/', postsControllers.getAllPosts); // Додано маршрут для отримання всіх постів на кореневому шляху

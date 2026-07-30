@@ -13,35 +13,54 @@ exports.getLogin = (req, res, next) => {
   res.json({ message: "Login route" });
 };
 
-exports.postLogin = (req, res, next) => {
-  const { email, password } = req.body;
+exports.postLogin = async (req, res, next) => {
+  console.log("🔥 POST LOGIN REACHED");
+  try {
+    const { email, password } = req.body;
 
-  User.findOne({ email: email })
-    .then(userFound => {
-      if (!userFound) {
-        return res.status(404).json({ message: 'User with this email not found' });
-      } else {
-        bcrypt.compare(password, userFound.password)
-          .then(isMatch => {
-            if (!isMatch) {
-              return res.status(401).json({ message: 'Invalid password' });
-            } else {
-              req.session.isLoggedIn = true;
-              req.session.user = {
-                _id: userFound._id.toString(),
-                userName: userFound.userName,
-                email: userFound.email,
-                avatarUrl: userFound.avatarUrl
-              };
-              res.json({ message: "Login successful", userFound });
-            }
-          });
+    const userFound = await User.findOne({ email });
+
+    if (!userFound) {
+      return res.status(401).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, userFound.password);
+
+    console.log("Password match:", isMatch);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    req.session.isLoggedIn = true;
+
+    req.session.user = {
+      _id: userFound._id.toString(),
+      userName: userFound.userName,
+      email: userFound.email,
+      avatarUrl: userFound.avatarUrl
+    };
+
+    res.json({
+      message: "Login successful",
+      user: {
+        _id: userFound._id.toString(),
+        userName: userFound.userName,
+        email: userFound.email,
+        avatarUrl: userFound.avatarUrl
       }
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({ message: err.message });
     });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: err.message
+    });
+  }
 };
 
 exports.postLogout = (req, res, next) => {
