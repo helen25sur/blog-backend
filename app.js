@@ -69,6 +69,7 @@ app.get("/csrf-token", (req, res) => {
     csrfToken: generateToken(req)
   });
 });
+
 app.use(csrfSynchronisedProtection);
 app.use(authRouter);
 app.use('/posts', postsRouter);
@@ -77,6 +78,16 @@ app.use((req, res, next) => {
   res.status(404).json({
     message: `Route not found: ${req.method} ${req.originalUrl}`
   });
+});
+
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).json({
+      message: 'Invalid CSRF token'
+    });
+  }
+
+  next(err);
 });
 
 mongoose.connect(MONGODB_URI + "?retryWrites=true&w=majority")

@@ -1,3 +1,5 @@
+// TODO: write middleware in async/await style
+
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
@@ -56,7 +58,7 @@ exports.postLogin = async (req, res, next) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({
       message: err.message
     });
@@ -79,46 +81,70 @@ exports.getSignup = (req, res, next) => {
   res.json({ message: "Signup route" });
 }
 
-exports.postSignup = (req, res, next) => {
-  const { username, email, password, confirmPassword } = req.body;
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match" });
-  }
-  User.findOne({ email: email })
-    .then(userFound => {
-      if (userFound) {
-        return res.status(400).json({ message: "Email already exists" });
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({ message: err.message });
+exports.postSignup = async (req, res) => {
+  try {
+    const { username, email, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        message: "Passwords do not match"
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "Email already exists"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const newUser = new User({
+      userName: username,
+      email,
+      avatarUrl:
+        "https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale",
+      password: hashedPassword
     });
 
-  bcrypt.hash(password, 12)
-    .then(hashedPassword => {
-      const newUser = new User({
-        userName: username,
-        email: email,
-        avatarUrl: 'https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale',
-        password: hashedPassword
+    const user = await newUser.save();
+
+    req.session.isLoggedIn = true;
+    req.session.user = {
+      _id: user._id.toString(),
+      userName: user.userName,
+      email: user.email,
+      avatarUrl: user.avatarUrl
+    };
+
+    req.session.save(err => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          message: "Session save failed"
+        });
+      }
+
+      res.status(201).json({
+        message: "Signup successful",
+        user: {
+          _id: user._id,
+          userName: user.userName,
+          email: user.email,
+          avatarUrl: user.avatarUrl
+        }
       });
-      return newUser.save();
-    })
-    .then(user => {
-      req.session.isLoggedIn = true;
-      req.session.user = {
-        _id: user._id.toString(),
-        userName: user.userName,
-        email: user.email,
-        avatarUrl: user.avatarUrl
-      };
-      res.status(201).json({ message: "Signup successful", username, email });
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({ message: err.message });
     });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: err.message
+    });
+  }
 };
 
 exports.getProfile = (req, res, next) => {
