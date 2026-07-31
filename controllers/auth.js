@@ -1,8 +1,20 @@
 // TODO: write middleware in async/await style
 
+const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
+
+// const resend = new Resend(process.env.RESEND_KEY);
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 exports.getStatus = (req, res) => {
   res.json({
@@ -56,6 +68,13 @@ exports.postLogin = async (req, res, next) => {
         avatarUrl: userFound.avatarUrl
       }
     });
+
+    // const { data, error } = await resend.emails.send({
+    //   from: "onboarding@resend.dev",
+    //   to: [userFound.email],
+    //   subject: "hello world",
+    //   html: "<strong>it works!</strong>",
+    // });
 
   } catch (err) {
     console.error(err.message);
@@ -136,6 +155,15 @@ exports.postSignup = async (req, res) => {
           avatarUrl: user.avatarUrl
         }
       });
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Signup is successful",
+      html: `<h1>Welcome!</h1>
+              <p>${user.userName}, nice to see you in our community!</p>
+              <p>We hope, you\'ll be satisfied!</p>`
     });
 
   } catch (err) {
