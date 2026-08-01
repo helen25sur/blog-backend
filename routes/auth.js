@@ -20,4 +20,12 @@ router.get('/current-user', isAuth, authControllers.getProfile);
 
 router.put('/current-user', isAuth, authControllers.putProfile);
 
+router.get('/reset', authControllers.getResetPassword);
+
+router.get('/reset/:token', authControllers.getNewPassword);
+
+router.post('/reset', authControllers.postResetPassword);
+
+router.post('/reset/:token', authControllers.postNewPassword);
+
 module.exports = router;

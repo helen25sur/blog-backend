@@ -73,7 +73,7 @@ app.get("/csrf-token", (req, res) => {
 app.use(csrfSynchronisedProtection);
 app.use(authRouter);
 app.use('/posts', postsRouter);
-app.use('/', postsControllers.getAllPosts); // Додано маршрут для отримання всіх постів на кореневому шляху
+app.get('/', postsControllers.getAllPosts); // Додано маршрут для отримання всіх постів на кореневому шляху
 app.use((req, res, next) => {
   res.status(404).json({
     message: `Route not found: ${req.method} ${req.originalUrl}`
