@@ -49,32 +49,38 @@ exports.getAddPost = (req, res, next) => {
   res.json({ message: "Add Post Page" });
 }
 
-exports.putEditPost = (req, res, next) => {
+exports.putEditPost = async (req, res, next) => {
   const postId = req.params.id;
   const { title, content, imageURL } = req.body;
-  console.log("Editing:", postId, req.body);
-  // const updatedPost = new Post(title, content, imageURL, postId);
-  Post.findById(postId)
-    .then(product => {
-      product.title = title;
-      product.content = content;
-      product.imageURL = imageURL;
-      return product.save()
-    })
-    .then((product) => {
-      console.log('59', product);
-      if (product) {
-        res.status(200).json(product);
-        console.log('62', 'Updating post');
-      } else {
-        res.status(404).json({ message: "Post not found" });
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      return res.status(500).json({ message: 'Error updating post' });
-    })
-}
+  console.log("Editing:", postId, req.user);
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    if (post.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not the owner of this post" });
+    }
+
+    post.title = title;
+    post.content = content;
+    post.imageURL = imageURL;
+
+    const updatedPost = await post.save();
+
+    if (updatedPost) {
+      res.status(200).json(updatedPost);
+      console.log('62', 'Updating post');
+    } else {
+      res.status(404).json({ message: "Post not found" });
+    }
+  }
+  catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error updating post' })
+  }
+};
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.id;
