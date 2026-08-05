@@ -31,6 +31,15 @@ exports.getLogin = (req, res, next) => {
 
 exports.postLogin = async (req, res, next) => {
   console.log("🔥 POST LOGIN REACHED");
+
+  const errors = validationResult(req);
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      message: errors.array().map(err => err.msg)
+    });
+  }
+
   try {
     const { email, password } = req.body;
 
@@ -61,15 +70,25 @@ exports.postLogin = async (req, res, next) => {
       avatarUrl: userFound.avatarUrl
     };
 
-    res.json({
-      message: "Login successful",
-      user: {
-        _id: userFound._id.toString(),
-        userName: userFound.userName,
-        email: userFound.email,
-        avatarUrl: userFound.avatarUrl
+    req.session.save(err => {
+      if (err) {
+        return res.status(500).json({
+          message: "Session save failed"
+        });
       }
+
+      res.json({
+        message: "Login successful",
+        user: {
+          _id: userFound._id.toString(),
+          userName: userFound.userName,
+          email: userFound.email,
+          avatarUrl: userFound.avatarUrl
+        }
+      });
     });
+
+
 
   } catch (err) {
     console.error(err.message);
@@ -99,12 +118,9 @@ exports.postSignup = async (req, res) => {
 
   const errors = validationResult(req);
   const err = errors.errors;
-  console.log(errors);
   if (!errors.isEmpty()) {
     return res.status(422).json({
-      message: errors.array().map(err =>
-        err.msg
-      )
+      message: errors.array().map(err => err.msg)
     });
   }
 
@@ -118,10 +134,14 @@ exports.postSignup = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail
+    });
 
     if (existingUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: "Email already exists"
       });
     }
@@ -130,7 +150,7 @@ exports.postSignup = async (req, res) => {
 
     const newUser = new User({
       userName: username,
-      email,
+      email: normalizedEmail,
       avatarUrl:
         "https://avataaars.io/?avatarStyle=Circle&topType=ShortHairShortCurly&accessoriesType=Wayfarers&hairColor=Brown&facialHairType=Blank&clotheType=CollarSweater&clotheColor=Gray01&eyeType=Side&eyebrowType=SadConcerned&mouthType=Twinkle&skinColor=Pale",
       password: hashedPassword
