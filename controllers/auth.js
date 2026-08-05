@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const { Resend } = require('resend');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { validationResult } = require('express-validator');
 
 const User = require('../models/user');
 
@@ -70,13 +71,6 @@ exports.postLogin = async (req, res, next) => {
       }
     });
 
-    // const { data, error } = await resend.emails.send({
-    //   from: "onboarding@resend.dev",
-    //   to: [userFound.email],
-    //   subject: "hello world",
-    //   html: "<strong>it works!</strong>",
-    // });
-
   } catch (err) {
     console.error(err.message);
     res.status(500).json({
@@ -102,6 +96,19 @@ exports.getSignup = (req, res, next) => {
 }
 
 exports.postSignup = async (req, res) => {
+
+  const errors = validationResult(req);
+  const err = errors.errors;
+  console.log(errors);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      message: errors.array().map(err =>
+        err.msg
+      )
+    });
+  }
+
+
   try {
     const { username, email, password, confirmPassword } = req.body;
 

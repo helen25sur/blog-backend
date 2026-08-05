@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { query, validationResult } = require('express-validator');
 const isAuth = require('../middleware/is-auth');
 
 const authControllers = require('../controllers/auth');
@@ -14,7 +15,7 @@ router.post('/logout', authControllers.postLogout);
 
 router.get('/signup', authControllers.getSignup);
 
-router.post('/signup', authControllers.postSignup);
+router.post('/signup', query('email').isEmail().withMessage('Please enter the valid email'), authControllers.postSignup);
 
 router.get('/current-user', isAuth, authControllers.getProfile);
 
